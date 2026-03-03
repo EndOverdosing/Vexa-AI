@@ -1,6 +1,6 @@
 # Query
 
-Send a single prompt to any of the 19 available AI models and get a text response. Supports an optional system prompt for personas and instructions.
+Send a single prompt to any available AI model and get a text response. Supports an optional system prompt for personas and instructions.
 
 ```
 GET  https://vexa-ai.vercel.app/query
@@ -20,12 +20,12 @@ curl "https://vexa-ai.vercel.app/query?q=What+is+a+black+hole"
 | Param | Required | Default | Description |
 |-------|----------|---------|-------------|
 | `q` | yes | — | Your prompt. Also accepted as `query`. |
-| `model` | no | first available | Model ID. See [`/models`](./MODELS.md). |
+| `model` | no | `openai` | Model ID. See [`/models`](./MODELS.md). |
 | `system` | no | — | System prompt prepended before your message. Sets persona or instructions. |
 
 ```bash
 # With model and system prompt
-curl "https://vexa-ai.vercel.app/query?q=Hello&model=gemini-3-flash&system=You+are+a+pirate.+Respond+only+in+pirate+speak."
+curl "https://vexa-ai.vercel.app/query?q=Hello&model=llama&system=You+are+a+pirate.+Respond+only+in+pirate+speak."
 ```
 
 ---
@@ -35,7 +35,7 @@ curl "https://vexa-ai.vercel.app/query?q=Hello&model=gemini-3-flash&system=You+a
 ```bash
 curl -X POST https://vexa-ai.vercel.app/query \
   -H "Content-Type: application/json" \
-  -d '{"prompt": "Explain quantum computing", "model": "deepseek-v3.1"}'
+  -d '{"prompt": "Explain quantum computing", "model": "openai-large"}'
 ```
 
 ### Body fields
@@ -52,7 +52,7 @@ curl -X POST https://vexa-ai.vercel.app/query \
   -H "Content-Type: application/json" \
   -d '{
     "prompt": "What should I have for dinner?",
-    "model": "gpt-5",
+    "model": "mistral",
     "system": "You are a professional chef who only recommends Italian food."
   }'
 ```
@@ -65,8 +65,8 @@ curl -X POST https://vexa-ai.vercel.app/query \
 {
   "success": true,
   "response": "A black hole is a region of spacetime where gravity is so strong that nothing — not even light — can escape once it crosses the event horizon.",
-  "model": "toolbaz-v4.5-fast",
-  "elapsed_ms": 1243,
+  "model": "openai",
+  "elapsed_ms": 820,
   "prompt_chars": 87
 }
 ```
@@ -77,7 +77,7 @@ curl -X POST https://vexa-ai.vercel.app/query \
 | `response` | string | The model's reply |
 | `model` | string | Model ID that was used |
 | `elapsed_ms` | number | Total round-trip time in milliseconds |
-| `prompt_chars` | number | Character count of the full prompt sent (including system prompt if provided) |
+| `prompt_chars` | number | Character count of the prompt sent |
 
 ---
 
@@ -94,16 +94,6 @@ curl -X POST https://vexa-ai.vercel.app/query \
   }'
 ```
 
-The system prompt is prepended to the user prompt before being sent upstream:
-
-```
-{system}
-
-{prompt}
-```
-
-The combined length of system + prompt must be under 4000 characters.
-
 > For multi-turn conversations with persistent system instructions, use [`/chat`](./CHAT.md) instead.
 
 ---
@@ -118,7 +108,7 @@ const res = await fetch('https://vexa-ai.vercel.app/query', {
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
     prompt: 'Hello!',
-    model: 'gemini-3-flash',
+    model: 'openai',
     system: 'You are a helpful assistant. Be concise.'
   })
 });
@@ -134,7 +124,7 @@ import requests
 
 r = requests.post('https://vexa-ai.vercel.app/query', json={
     'prompt': 'What is a neural network?',
-    'model': 'deepseek-v3.1',
+    'model': 'deepseek',
     'system': 'Explain everything as if to a 10-year-old.'
 })
 d = r.json()
@@ -148,10 +138,9 @@ print(f"{d['elapsed_ms']}ms, {d['prompt_chars']} chars sent")
 
 | Limit | Value |
 |-------|-------|
-| Max combined prompt length | 4000 characters |
+| Max prompt length | 16000 characters |
 | Rate limit | 20 requests / IP / 60s |
-| Upstream timeout | 55s |
-| Retries | 3 with exponential backoff |
+| Timeout | 30s |
 
 ---
 
@@ -160,18 +149,7 @@ print(f"{d['elapsed_ms']}ms, {d['prompt_chars']} chars sent")
 | Status | Error | Cause |
 |--------|-------|-------|
 | `400` | `Missing required parameter: q, query, or prompt` | No prompt provided |
-| `400` | `Prompt exceeds maximum length of 4000 characters` | Prompt + system too long |
-| `400` | `Unknown model 'xyz'` | Invalid model ID — also returns `valid_models` array |
+| `400` | `Prompt exceeds maximum length of 16000 characters` | Prompt too long |
 | `429` | `Rate limit exceeded. Try again shortly.` | Too many requests |
-| `502` | `Upstream request failed` | toolbaz.com unreachable or errored |
+| `502` | `Upstream request failed` | Pollinations.AI unreachable or errored |
 | `500` | `Internal server error` | Unexpected failure |
-
-### Unknown model error
-
-```json
-{
-  "success": false,
-  "error": "Unknown model 'gpt-99'",
-  "valid_models": ["toolbaz-v4.5-fast", "deepseek-v3.1", "..."]
-}
-```

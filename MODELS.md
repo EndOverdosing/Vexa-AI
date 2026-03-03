@@ -4,7 +4,7 @@
 GET https://vexa-ai.vercel.app/models
 ```
 
-Returns all available text models scraped live from toolbaz.com, plus the top image models from Stable Horde. Cached for 5 minutes per serverless instance.
+Returns all available text models from Pollinations.AI, plus the top image models from Stable Horde. Cached for 5 minutes per serverless instance.
 
 ---
 
@@ -13,19 +13,19 @@ Returns all available text models scraped live from toolbaz.com, plus the top im
 ```json
 {
   "success": true,
-  "default": "toolbaz-v4.5-fast",
+  "default": "openai",
   "models": {
-    "toolbaz-v4.5-fast": {
-      "label": "ToolBaz v4.5 Fast",
-      "provider": "ToolBaz",
-      "speed": 250,
-      "quality": 90
+    "openai": {
+      "label": "GPT-4o",
+      "provider": "OpenAI"
     },
-    "deepseek-v3.1": {
-      "label": "DeepSeek V3.1",
-      "provider": "DeepSeek",
-      "speed": 295,
-      "quality": 80
+    "openai-large": {
+      "label": "GPT-4o Large",
+      "provider": "OpenAI"
+    },
+    "llama": {
+      "label": "Llama (fastest)",
+      "provider": "Meta"
     }
   },
   "image_models": [
@@ -42,8 +42,6 @@ Returns all available text models scraped live from toolbaz.com, plus the top im
 |-------|------|-------------|
 | `label` | string | Human-readable display name |
 | `provider` | string | Company or team behind the model |
-| `speed` | number | Words per second (scraped from toolbaz) |
-| `quality` | number | Quality score 0–100 (scraped from toolbaz) |
 
 ### Image model fields
 
@@ -57,29 +55,19 @@ Returns all available text models scraped live from toolbaz.com, plus the top im
 
 ## Text Models
 
-Model IDs are scraped live — always use `/models` for the authoritative list. Approximate list as of last update:
+Text models are fetched live from Pollinations.AI — always use `/models` for the authoritative list. Known models:
 
-| Model ID | Provider | Quality |
-|----------|----------|---------|
-| `toolbaz-v4.5-fast` | ToolBaz | 90 |
-| `gpt-5.2` | OpenAI | 92 |
-| `gemini-3-flash` | Google | 94 |
-| `gemini-2.5-pro` | Google | 84 |
-| `gemini-2.5-flash` | Google | 79 |
-| `claude-sonnet-4` | Anthropic | 90 |
-| `deepseek-v3.1` | DeepSeek | 80 |
-| `deepseek-v3` | DeepSeek | 78 |
-| `deepseek-r1-distill` | DeepSeek | 70 |
-| `gpt-5` | OpenAI | 85 |
-| `gpt-oss-120b` | OpenAI | 79 |
-| `o3-mini` | OpenAI | 85 |
-| `gpt-4o-latest` | OpenAI | 80 |
-| `grok-4-fast` | xAI | 82 |
-| `toolbaz-v4` | ToolBaz | 82 |
-| `llama-4-maverick` | Meta | 82 |
-| `L3-70B-Euryale-v2.1` | HuggingFace | 75 |
-| `midnight-rose` | HuggingFace | 72 |
-| `unfiltered-x-8x22b` | HuggingFace | 76 |
+| Model ID | Provider | Notes |
+|----------|----------|-------|
+| `openai` | OpenAI | GPT-4o — default |
+| `openai-large` | OpenAI | GPT-4o Large |
+| `openai-reasoning` | OpenAI | o1 reasoning model |
+| `mistral` | Mistral AI | Mistral latest |
+| `llama` | Meta | Fastest option |
+| `deepseek` | DeepSeek | DeepSeek latest |
+| `deepseek-r1` | DeepSeek | Reasoning variant |
+| `claude-hybridspace` | Anthropic | Claude hybrid |
+| `searchgpt` | OpenAI | Web-search enabled |
 
 > This table may go stale. Use `/models` for live data.
 
@@ -109,4 +97,4 @@ Both text and image model lists are cached for **5 minutes** per serverless inst
 
 | Status | Cause |
 |--------|-------|
-| `502` | toolbaz.com unreachable or returned unexpected HTML |
+| `502` | Pollinations.AI unreachable — falls back to hardcoded model list |

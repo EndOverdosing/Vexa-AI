@@ -2,7 +2,7 @@
 
 Free REST API for text and image generation. No account, no API key, no setup.
 
-- **Text** — 19 AI models via [toolbaz.com](https://toolbaz.com)
+- **Text** — Multiple AI models via [Pollinations.AI](https://pollinations.ai)
 - **Images** — Community GPU cluster via [Stable Horde](https://stablehorde.net)
 
 ```

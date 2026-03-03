@@ -8,7 +8,7 @@ ENDPOINTS = [
         "description": "Send a prompt to an AI model and get a response",
         "params": {
             "q":      "Your prompt (GET) — also accepted as 'query'",
-            "model":  "(optional) Model ID. Defaults to first available. See /models.",
+            "model":  "(optional) Model ID. Defaults to 'openai'. See /models.",
             "system": "(optional) System prompt prepended before your message",
         },
         "body_fields": {
@@ -19,21 +19,21 @@ ENDPOINTS = [
         "example_response": {
             "success":      True,
             "response":     "Hello! How can I help you today?",
-            "model":        "toolbaz-v4.5-fast",
-            "elapsed_ms":   1243,
+            "model":        "openai",
+            "elapsed_ms":   820,
             "prompt_chars": 87,
         },
     },
     {
         "method":      "POST",
         "path":        "/chat",
-        "description": "Multi-turn conversation using an OpenAI-style messages array. Handles context concatenation server-side.",
+        "description": "Multi-turn conversation using an OpenAI-style messages array.",
         "body_fields": {
             "messages": "array (required) — [{role: 'system'|'user'|'assistant', content: string}]",
             "model":    "string (optional)",
         },
         "example_request": {
-            "model":    "gemini-3-flash",
+            "model": "openai-large",
             "messages": [
                 {"role": "system",    "content": "You are a helpful assistant."},
                 {"role": "user",      "content": "What is the speed of light?"},
@@ -44,7 +44,7 @@ ENDPOINTS = [
         "example_response": {
             "success": True,
             "message": {"role": "assistant", "content": "At the speed of light, it takes about 1.28 seconds to reach the Moon."},
-            "model":        "gemini-3-flash",
+            "model":        "openai-large",
             "elapsed_ms":   980,
             "prompt_chars": 312,
         },
@@ -52,12 +52,15 @@ ENDPOINTS = [
     {
         "method":      "GET",
         "path":        "/models",
-        "description": "List all available text models (scraped live from toolbaz) and image models (from Stable Horde)",
+        "description": "List all available text models (from Pollinations.AI) and image models (from Stable Horde)",
         "example_response": {
             "success": True,
-            "default": "toolbaz-v4.5-fast",
+            "default": "openai",
             "models": {
-                "toolbaz-v4.5-fast": {"provider": "ToolBaz", "speed": 250, "quality": 90},
+                "openai":       {"label": "GPT-4o",         "provider": "OpenAI"},
+                "openai-large": {"label": "GPT-4o Large",   "provider": "OpenAI"},
+                "llama":        {"label": "Llama (fastest)", "provider": "Meta"},
+                "mistral":      {"label": "Mistral",         "provider": "Mistral AI"},
             },
             "image_models": [
                 {"name": "Deliberate", "count": 42, "queued": 5},
@@ -74,8 +77,8 @@ ENDPOINTS = [
             "model":           "(optional) Stable Horde model name. Default: Deliberate. See /models → image_models.",
             "resolution":      "(optional) 512x512 | 512x768 | 768x512 | 768x768. Default: 512x512",
             "num":             "(optional) Number of images 1–4. Default: 1",
-            "cfg_scale":       "(optional) Guidance scale 1–20. Default: 7. Higher = more prompt-adherent.",
-            "steps":           "(optional) Inference steps 1–50. Default: 20. Higher = more detail, slower.",
+            "cfg_scale":       "(optional) Guidance scale 1–20. Default: 7.",
+            "steps":           "(optional) Inference steps 1–50. Default: 20.",
         },
         "example_response": {
             "success":         True,
@@ -85,7 +88,6 @@ ENDPOINTS = [
             "resolution":      "512x512",
             "cfg_scale":       7,
             "steps":           20,
-            "num_images":      1,
             "elapsed_ms":      34200,
             "images": [
                 {"url": "https://...webp", "b64": "<base64>", "seed": "149576367", "worker": "Caustic"},
@@ -95,17 +97,16 @@ ENDPOINTS = [
     {
         "method":      "GET",
         "path":        "/health",
-        "description": "Live check of all upstream services: toolbaz page, token endpoint, model scraper, and Stable Horde image pipeline",
+        "description": "Live check of all services: Pollinations.AI text API, model list, and Stable Horde image pipeline",
         "example_response": {
             "success":   True,
             "status":    "ok",
             "timestamp": 1740888000,
             "total_ms":  890,
             "checks": {
-                "page":   {"reachable": True, "status_code": 200, "latency_ms": 210},
-                "token":  {"reachable": True, "token_received": True, "latency_ms": 130},
-                "models": {"reachable": True, "model_count": 19, "latency_ms": 215},
-                "image":  {"reachable": True, "model_count": 84, "job_submitted": True, "is_possible": True, "queue_position": 12, "estimated_wait_s": 45, "latency_ms": 620},
+                "pollinations": {"reachable": True, "status_code": 200, "latency_ms": 820},
+                "models":       {"reachable": True, "model_count": 12, "latency_ms": 210},
+                "image":        {"reachable": True, "model_count": 84, "job_submitted": True, "is_possible": True, "queue_position": 12, "estimated_wait_s": 45, "latency_ms": 620},
             },
         },
     },
@@ -115,8 +116,7 @@ ERROR_RESPONSES = [
     {"status": 400, "body": {"success": False, "error": "Missing required parameter: q, query, or prompt"}},
     {"status": 400, "body": {"success": False, "error": "Missing or empty 'messages' array"}},
     {"status": 400, "body": {"success": False, "error": "messages[0].role must be 'system', 'user', or 'assistant'"}},
-    {"status": 400, "body": {"success": False, "error": "Prompt exceeds maximum length of 4000 characters"}},
-    {"status": 400, "body": {"success": False, "error": "Unknown model 'xyz'", "valid_models": ["toolbaz-v4.5-fast", "..."]}},
+    {"status": 400, "body": {"success": False, "error": "Prompt exceeds maximum length of 16000 characters"}},
     {"status": 429, "body": {"success": False, "error": "Rate limit exceeded. Try again shortly."}},
     {"status": 502, "body": {"success": False, "error": "Upstream request failed"}},
     {"status": 502, "body": {"success": False, "error": "No workers available for this model. Check /models for valid image_models."}},
@@ -137,16 +137,18 @@ class handler(BaseHTTPRequestHandler):
     def do_GET(self):
         body = json.dumps({
             "name":        "Vexa AI",
-            "description": "Free text and image generation API. No key required.",
+            "description": "Free text and image generation API powered by Pollinations.AI and Stable Horde. No key required.",
             "base_url":    "https://vexa-ai.vercel.app",
             "timestamp":   int(time.time()),
+            "text_provider": "Pollinations.AI (https://pollinations.ai)",
+            "image_provider": "Stable Horde (https://stablehorde.net)",
             "rate_limits": {
                 "/query": "20 requests / IP / 60s",
                 "/chat":  "20 requests / IP / 60s",
                 "/image": "10 requests / IP / 60s",
             },
-            "endpoints":   ENDPOINTS,
-            "errors":      ERROR_RESPONSES,
+            "endpoints": ENDPOINTS,
+            "errors":     ERROR_RESPONSES,
         }, ensure_ascii=False, indent=2).encode()
 
         self.send_response(200)
