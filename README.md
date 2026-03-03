@@ -1,4 +1,4 @@
-![VEXA Banner](/images/banner.png)
+![Vexa Banner](/images/banner.png)
 
 # Vexa AI
 

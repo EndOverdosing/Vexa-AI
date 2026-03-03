@@ -1,6 +1,6 @@
 {
-    "name": "VEXA — Free AI API",
-    "short_name": "VEXA",
+    "name": "Vexa — Free AI API",
+    "short_name": "Vexa",
     "description": "Text generation, multi-turn chat, and image synthesis — no account, no API key, no setup. Powered by Pollinations.AI and Stable Horde.",
     "start_url": "/",
     "display": "standalone",
@@ -10,7 +10,7 @@
     "icons": [
         {
             "src": "/icon.png",
-            "sizes": "64x64 32x32 24x24 16x16",
+            "sizes": "64x64",
             "type": "image/png"
         },
         {
