@@ -20,7 +20,7 @@ curl "https://vexa-ai.vercel.app/query?q=Hello&model=gemini-2.5-pro"
 
 | Param | Required | Default | Description |
 |-------|----------|---------|-------------|
-| `q` | yes | — | Your prompt. Also accepted as `query`. |
+| `q` / `query` | yes | — | Your prompt |
 | `model` | no | `toolbaz-v4.5-fast` | Model ID. See [`/models`](./MODELS.md). |
 
 ---
@@ -86,9 +86,9 @@ print(r.json()['response'])
 
 | Limit | Value |
 |-------|-------|
-| Max prompt length | 4000 characters |
+| Max prompt length | 4,000 characters |
 | Rate limit | 20 requests / IP / 60s |
-| Timeout | 55s |
+| Upstream timeout | 55s |
 | Retries | 3 with exponential backoff |
 
 ---

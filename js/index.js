@@ -114,7 +114,7 @@ function pageHome() {
   return `
 <div class="ticker-wrap">
   <div class="ticker-inner">
-    ${Array(4).fill(['FREE REST API', 'NO AUTH REQUIRED', 'TEXT GENERATION', 'IMAGE SYNTHESIS', 'MULTI-TURN CHAT', '15+ MODELS', 'STABLE HORDE', 'POLLINATIONS.AI', 'OPEN ACCESS', 'ZERO SETUP'].map(t => `<span class="ticker-item">${t}</span>`).join('')).join('')}
+    ${Array(4).fill(['FREE REST API', 'NO AUTH REQUIRED', 'TEXT GENERATION', 'IMAGE SYNTHESIS', 'MULTI-TURN CHAT', '15+ MODELS', 'STABLE HORDE', 'TOOLBAZ', 'OPEN ACCESS', 'ZERO SETUP'].map(t => `<span class="ticker-item">${t}</span>`).join('')).join('')}
   </div>
 </div>
 <div class="hero">
@@ -126,7 +126,7 @@ function pageHome() {
       <span class="y">API</span><br>
       <span class="b">NOW.</span>
     </h1>
-    <p class="hero-body">Text generation, multi-turn chat, and image synthesis — no account, no API key, no setup. Powered by Pollinations.AI and Stable Horde.</p>
+    <p class="hero-body">Text generation, multi-turn chat, and image synthesis — no account, no API key, no setup. Powered by Toolbaz and Stable Horde.</p>
     <div class="hero-cta">
       <button class="btn btn-primary" onclick="go('/playground')">Try Playground →</button>
       <button class="btn btn-secondary" onclick="go('/endpoints')">View Docs</button>
@@ -204,8 +204,8 @@ function pageEndpoints() {
       { cls: 'ep-c1', m: 'GET / POST', mc: 'm-both', p: '/query', d: 'Send a single prompt to any text model. Pass <code>?q=</code> in a GET or a JSON body in a POST.', t: 'Text · Single-turn' },
       { cls: 'ep-c2', m: 'POST', mc: 'm-post', p: '/chat', d: 'Multi-turn conversation with OpenAI-style messages array. Pass full history each request.', t: 'Text · Multi-turn' },
       { cls: 'ep-c3', m: 'GET / POST', mc: 'm-both', p: '/image', d: 'Generate images via Stable Horde community GPUs. Supports negative prompts, cfg_scale, steps.', t: 'Image · Stable Diffusion' },
-      { cls: 'ep-c4', m: 'GET', mc: 'm-get', p: '/models', d: 'Returns all text models and top 20 image models from Stable Horde. Cached 5 min per instance.', t: 'Meta · Model List' },
-      { cls: 'ep-c5', m: 'GET', mc: 'm-get', p: '/health', d: 'Live status of all upstream services. Pollinations.AI and Stable Horde reachability in one call.', t: 'Meta · Status' },
+      { cls: 'ep-c4', m: 'GET', mc: 'm-get', p: '/models', d: 'Returns all text models and top 30 image models from Stable Horde. Cached 5 min per instance.', t: 'Meta · Model List' },
+      { cls: 'ep-c5', m: 'GET', mc: 'm-get', p: '/health', d: 'Live status of Toolbaz and Stable Horde. Tests auth token exchange and image job queueing.', t: 'Meta · Status' },
     ].map(c => `
     <div class="ep-card ${c.cls}">
       <div class="ep-method ${c.mc}">${c.m}</div>
@@ -300,7 +300,7 @@ function pageModels() {
   </div>
   <div style="border-top:var(--border);padding:2rem 2.5rem;display:flex;align-items:center;gap:2.5rem;flex-wrap:wrap">
     <div style="font-family:'Space Mono',monospace;font-size:.72rem;color:#888">Text default</div>
-    <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.05em" id="def-model">openai</div>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.05em" id="def-model">toolbaz-v4.5-fast</div>
     <div style="width:2px;height:32px;background:var(--light-gray)"></div>
     <div style="font-family:'Space Mono',monospace;font-size:.72rem;color:#888">Image default</div>
     <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.05em">Deliberate</div>
@@ -321,7 +321,7 @@ async function loadModels() {
     const il = document.getElementById('img-list');
     const dm = document.getElementById('def-model');
     if (!tl || !il) return;
-    if (dm) dm.textContent = d.default || 'openai';
+    if (dm) dm.textContent = d.default || 'toolbaz-v4.5-fast';
     tl.innerHTML = '';
     Object.entries(d.models).forEach(([id, info]) => {
       const row = document.createElement('div');
@@ -375,7 +375,7 @@ function pagePlayground() {
         </div>
         <div class="f-group">
           <label class="f-label">Model</label>
-          <select class="f-select" id="q-model"><option value="openai">openai (loading…)</option></select>
+          <select class="f-select" id="q-model"><option value="toolbaz-v4.5-fast">toolbaz-v4.5-fast (loading…)</option></select>
         </div>
         <button class="btn btn-primary" onclick="runQuery()" style="width:100%;justify-content:center">Run Query →</button>
       </div>
@@ -387,7 +387,7 @@ function pagePlayground() {
         </div>
         <div class="f-group">
           <label class="f-label">Model</label>
-          <select class="f-select" id="c-model"><option value="openai">openai (loading…)</option></select>
+          <select class="f-select" id="c-model"><option value="toolbaz-v4.5-fast">toolbaz-v4.5-fast (loading…)</option></select>
         </div>
         <button class="btn btn-secondary" onclick="clearChat()" style="width:100%;justify-content:center;font-size:.65rem">Clear Conversation</button>
         <div class="chat-row">
@@ -516,7 +516,6 @@ async function loadTerminalGreeting() {
     const data = await r.json();
 
     if (data.success && textEl && modelEl && timeEl) {
-      // Truncate response if too long for terminal display
       let response = data.response;
       if (response.length > 60) {
         response = response.substring(0, 57) + '...';
@@ -658,7 +657,7 @@ async function runImage() {
     setLoad(false);
     if (!data.success) throw new Error(data.error || 'Generation failed');
     if (data.images?.[0]) {
-      document.getElementById('out-img').src = `data:image/webp;base64,${data.images[0].b64}`;
+      document.getElementById('out-img').src = `data:image/jpeg;base64,${data.images[0].b64}`;
       document.getElementById('out-img').classList.add('on');
       document.getElementById('out-md').innerHTML = md(`**Seed:** \`${data.images[0].seed}\`\n\n**Worker:** \`${data.images[0].worker}\``);
     }
@@ -680,7 +679,7 @@ function pageLimits() {
       <div class="lim-ep">/query</div>
       <div class="lim-num">20</div>
       <div class="lim-unit">requests / IP / 60s</div>
-      <div class="lim-details">Max prompt: 16,000 chars<br>Timeout: 30s<br>Upstream: Pollinations.AI</div>
+      <div class="lim-details">Max prompt: 4,000 chars<br>Timeout: 55s<br>Upstream: Toolbaz</div>
     </div>
     <div class="lim-card dark" data-ghost="/CHAT">
       <div class="lim-ep">/chat</div>
@@ -692,7 +691,7 @@ function pageLimits() {
       <div class="lim-ep">/image</div>
       <div class="lim-num">10</div>
       <div class="lim-unit">requests / IP / 60s</div>
-      <div class="lim-details">Max prompt: 500 chars<br>Server timeout: 120s<br>Upstream: Stable Horde</div>
+      <div class="lim-details">Max prompt: 1,000 chars<br>Server timeout: 120s<br>Upstream: Stable Horde</div>
     </div>
   </div>
 </section>
@@ -703,9 +702,9 @@ function pageLimits() {
   </div>
   <div class="constraints-grid">
     ${[
-      ['/query', ['Prompt: 16,000 chars max', 'Rate: 20 req/IP/60s', 'Timeout: 30s', 'Upstream: Pollinations.AI']],
+      ['/query', ['Prompt: 4,000 chars max', 'Rate: 20 req/IP/60s', 'Timeout: 55s · Retries: 3', 'Upstream: Toolbaz']],
       ['/chat', ['Conversation: 16,000 chars total', 'Rate: 20 req/IP/60s', 'Timeout: 30s', 'Trim old msgs if over limit']],
-      ['/image', ['Prompt: 500 chars max', 'Negative: 300 chars max', 'Images per request: 1–4', 'Steps: 1–50 · CFG: 1–20']],
+      ['/image', ['Prompt: 1,000 chars max', 'Negative: 500 chars max', 'Images per request: 1–4', 'Steps: 10–50 · CFG: 1–20']],
       ['/models + /health', ['Models cached: 5 min/instance', 'Multiple instances may differ', 'Image models sorted by workers', 'count=0 → 502 immediately']],
     ].map(([ep, items]) => `
     <div class="con-cell">

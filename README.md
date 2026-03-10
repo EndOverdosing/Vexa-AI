@@ -4,7 +4,7 @@
 
 Free REST API for text and image generation. No account, no API key, no setup.
 
-- **Text** — 19 AI models via [Toolbaz](https://toolbaz.com) (GPT-5, Gemini, DeepSeek, Claude, Grok, Llama, and more)
+- **Text** — AI models via [Toolbaz](https://toolbaz.com) (GPT, Gemini, DeepSeek, Claude, Grok, Llama, and more)
 - **Images** — Community GPU cluster via [Stable Horde](https://aihorde.net)
 
 ```
@@ -22,7 +22,7 @@ BASE_URL = https://vexa-ai.vercel.app
 | `GET POST` | `/query` | Single prompt → response |
 | `POST` | `/chat` | Multi-turn conversation (OpenAI-style messages array) |
 | `GET POST` | `/image` | Generate images |
-| `GET` | `/health` | Live status of all upstream services |
+| `GET` | `/health` | Live status of Toolbaz and Stable Horde |
 
 ---
 

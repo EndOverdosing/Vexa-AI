@@ -1,7 +1,7 @@
 {
     "name": "Vexa — Free AI API",
     "short_name": "Vexa",
-    "description": "Text generation, multi-turn chat, and image synthesis — no account, no API key, no setup. Powered by Pollinations.AI and Stable Horde.",
+    "description": "Text generation, multi-turn chat, and image synthesis — no account, no API key, no setup. Powered by Toolbaz and Stable Horde.",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#080b0f",

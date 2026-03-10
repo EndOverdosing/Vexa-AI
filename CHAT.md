@@ -6,13 +6,15 @@ Multi-turn conversation endpoint. Accepts an OpenAI-style `messages` array and h
 POST https://vexa-ai.vercel.app/chat
 ```
 
+GET requests to `/chat` return a `405` with usage instructions rather than an error, explaining how to call the endpoint correctly.
+
 ---
 
 ## Request
 
 ```bash
-curl -X POST https://vexa-ai.vercel.app/chat \
-  -H "Content-Type: application/json" \
+curl -X POST https://vexa-ai.vercel.app/chat \\
+  -H "Content-Type: application/json" \\
   -d '{
     "model": "gemini-2.5-pro",
     "messages": [
@@ -28,8 +30,8 @@ curl -X POST https://vexa-ai.vercel.app/chat \
 
 | Field | Required | Description |
 |-------|----------|-------------|
-| `messages` | yes | Array of message objects |
-| `model` | no | Model ID. Defaults to `toolbaz-v4.5-fast`. See [`/models`](./MODELS.md). |
+| `messages` | yes | Array of message objects (at least one) |
+| `model` | no | Model ID. Defaults to `toolbaz-v4.5-fast`. If the given model is not in the valid list, falls back to default. See [`/models`](./MODELS.md). |
 
 ### Message object
 
@@ -112,7 +114,7 @@ def chat(msg, model='deepseek-v3.1'):
 
 | Limit | Value |
 |-------|-------|
-| Max total conversation length | 16000 characters |
+| Max total conversation length | 16,000 characters |
 | Rate limit | 20 requests / IP / 60s |
 | Upstream timeout | 30s |
 
@@ -124,7 +126,7 @@ def chat(msg, model='deepseek-v3.1'):
 |--------|-------|
 | `400` | `Missing or empty 'messages' array` |
 | `400` | `messages[N].role must be 'system', 'user', or 'assistant'` |
+| `400` | `messages[N].content must be a string` |
 | `400` | `Conversation exceeds maximum length of 16000 characters` |
 | `429` | `Rate limit exceeded. Try again shortly.` |
 | `502` | `Upstream request failed: <detail>` |
-| `500` | `Internal server error` |

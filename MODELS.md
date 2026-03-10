@@ -17,9 +17,7 @@ Returns all available text models scraped live from Toolbaz, and live image mode
   "models": {
     "toolbaz-v4.5-fast": { "label": "ToolBaz-v4.5-Fast", "provider": "ToolBaz",  "speed": 250, "quality": 90 },
     "gemini-2.5-pro":    { "label": "Gemini-2.5-Pro",    "provider": "Google",   "speed": 50,  "quality": 84 },
-    "deepseek-v3.1":     { "label": "Deepseek-V3.1",     "provider": "DeepSeek", "speed": 295, "quality": 80 },
-    "gpt-5":             { "label": "GPT-5",             "provider": "OpenAI",   "speed": 60,  "quality": 85 },
-    "claude-sonnet-4":   { "label": "Claude-Sonnet-4",   "provider": "Anthropic","speed": 60,  "quality": 90 }
+    "deepseek-v3.1":     { "label": "Deepseek-V3.1",     "provider": "DeepSeek", "speed": 295, "quality": 80 }
   },
   "image_models": [
     { "name": "Deliberate",  "count": 4 },
@@ -47,20 +45,22 @@ Use `GET /models` to discover what's currently available. The model list changes
 
 ### Default model
 
-`toolbaz-v4.5-fast` — used when no `model` param is specified. Falls back to first available if not in list.
+`toolbaz-v4.5-fast` — used when no `model` param is specified. Falls back to first available model if not present in the scraped list.
 
 ---
 
 ## Image Models
 
-Fetched live from Stable Horde, filtered to online workers, sorted by worker count descending. Top 30 returned.
+Fetched live from Stable Horde workers endpoint, filtered to online workers only, ranked by worker count descending. Top 30 returned.
+
+If the workers endpoint fails, falls back to the Stable Horde model reference API.
 
 Pass the exact `name` to `/image?model=` or the `model` POST body field.
 
 | Field | Type | Description |
 |-------|------|-------------|
 | `name` | string | Exact model name to pass to `/image` |
-| `count` | number | Active workers right now |
+| `count` | number | Active workers right now (0 if sourced from fallback reference) |
 
 ---
 
