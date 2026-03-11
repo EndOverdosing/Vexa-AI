@@ -4,7 +4,7 @@
 
 Free REST API for text and image generation. No account, no API key, no setup.
 
-- **Text** — AI models via [Toolbaz](https://toolbaz.com) (GPT, Gemini, DeepSeek, Claude, Grok, Llama, and more)
+- **Text** — AI models via [Toolbaz](https://toolbaz.com)
 - **Images** — Community GPU cluster via [Stable Horde](https://aihorde.net)
 
 ```
